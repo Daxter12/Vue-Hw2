@@ -1,58 +1,135 @@
 <template>
-  <div class="hello">
-    <h1>{{ msg }}</h1>
-    <p>
-      For a guide and recipes on how to configure / customize this project,<br>
-      check out the
-      <a href="https://cli.vuejs.org" target="_blank" rel="noopener">vue-cli documentation</a>.
-    </p>
-    <h3>Installed CLI Plugins</h3>
-    <ul>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-babel" target="_blank" rel="noopener">babel</a></li>
-      <li><a href="https://github.com/vuejs/vue-cli/tree/dev/packages/%40vue/cli-plugin-eslint" target="_blank" rel="noopener">eslint</a></li>
-    </ul>
-    <h3>Essential Links</h3>
-    <ul>
-      <li><a href="https://vuejs.org" target="_blank" rel="noopener">Core Docs</a></li>
-      <li><a href="https://forum.vuejs.org" target="_blank" rel="noopener">Forum</a></li>
-      <li><a href="https://chat.vuejs.org" target="_blank" rel="noopener">Community Chat</a></li>
-      <li><a href="https://twitter.com/vuejs" target="_blank" rel="noopener">Twitter</a></li>
-      <li><a href="https://news.vuejs.org" target="_blank" rel="noopener">News</a></li>
-    </ul>
-    <h3>Ecosystem</h3>
-    <ul>
-      <li><a href="https://router.vuejs.org" target="_blank" rel="noopener">vue-router</a></li>
-      <li><a href="https://vuex.vuejs.org" target="_blank" rel="noopener">vuex</a></li>
-      <li><a href="https://github.com/vuejs/vue-devtools#vue-devtools" target="_blank" rel="noopener">vue-devtools</a></li>
-      <li><a href="https://vue-loader.vuejs.org" target="_blank" rel="noopener">vue-loader</a></li>
-      <li><a href="https://github.com/vuejs/awesome-vue" target="_blank" rel="noopener">awesome-vue</a></li>
-    </ul>
+  <div>
+    <div class="display">
+      <input v-model.number="operand1" />
+      <input v-model.number="operand2" />
+      = {{ result }}
+      <br />
+      = {{ resultFib }}
+    </div>
+
+    <hr />
+
+    <div class="keyboard">
+      <button
+        v-for="operand in operands"
+        :key="operand"
+        @click="calculate(operand)"
+      >
+        {{ operand }}
+      </button>
+    </div>
+
+    <div v-if="error">Ошибка! {{ error }}</div>
+
+    <div class="strange-message">
+      <template v-if="result < 0">Получилось отрицательное число</template>
+      <template v-else-if="result < 100">Результат в первой сотне</template>
+      <template v-else>Получилось слишком большое число</template>
+    </div>
+
+    <hr />
+
+    <div v-for="(item, index) in myCollection" :key="index">
+      {{ index }} - {{ item }}
+    </div>
+
+    <div class="logs">
+      <div v-for="(log, id) in logs" :key="id">{{ log }}</div>
+    </div>
   </div>
 </template>
 
 <script>
-export default {
-  name: 'HelloWorld',
-  props: {
-    msg: String
-  }
-}
+  // import Vue from "vue";
+  export default {
+    name: "Calculator",
+    data() {
+      return {
+        operand1: "",
+        operand2: "",
+        result: "",
+        resultFib: 0,
+        error: "",
+        myCollection: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+        operands: ["+", "-", "*", "/"],
+        logs: {},
+      };
+    },
+    computed: {
+      fib1() {
+        return this.fib(this.operand1);
+      },
+      fib2() {
+        return this.fib(this.operand2);
+      },
+    },
+    methods: {
+      calculate(operation = "+") {
+        this.error = "";
+        switch (operation) {
+          case "+":
+            this.add();
+            break;
+          case "-":
+            this.substract();
+            break;
+          case "*":
+            this.multiply();
+            break;
+          case "/":
+            this.divide();
+            break;
+        }
+
+        const key = Date.now();
+        const value = `${this.operand1}${operation}${this.operand2}=${this.result}`;
+        this.$set(this.logs, key, value);
+      },
+
+      add() {
+        this.result = parseInt(this.operand1) + parseInt(this.operand2);
+        this.resultFib = this.fib1 + this.fib2;
+      },
+      substract() {
+        this.result = this.operand1 - this.operand2;
+        this.resultFib = this.fib(this.operand1) - this.fib(this.operand2);
+      },
+      divide() {
+        const { operand1, operand2 } = this;
+        if (operand2 === 0) {
+          this.error = "Делить на 0 нельзя!";
+        } else {
+          this.result = operand1 / operand2;
+        }
+      },
+      multiply() {
+        this.result = this.operand1 * this.operand2;
+      },
+      fib(n) {
+        return n <= 1 ? n : this.fib(n - 1) + this.fib(n - 2);
+      },
+    },
+    props: {
+      msg: String,
+    },
+  };
 </script>
 
 <!-- Add "scoped" attribute to limit CSS to this component only -->
 <style scoped lang="scss">
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
+  h3 {
+    margin: 40px 0 0;
+  }
+  ul {
+    list-style-type: none;
+    padding: 0;
+  }
+  li {
+    display: inline-block;
+    margin: 0 10px;
+  }
+  a {
+    color: #42b983;
+  }
 </style>
